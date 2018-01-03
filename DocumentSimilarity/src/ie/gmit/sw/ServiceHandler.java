@@ -37,8 +37,8 @@ public class ServiceHandler extends HttpServlet {
 	private int SHINGLE_SIZE = 0;
 	private static long jobNumber = 0;
 	
-	private Deque<String> buffer = new LinkedList<>();
-	private BlockingQueue<Shingle> bq = new LinkedBlockingQueue<>();
+	
+	
 
 
 	/* This method is only called once, when the servlet is first started (like a constructor). 
@@ -141,49 +141,26 @@ public class ServiceHandler extends HttpServlet {
 		 * interface Part that is accessed by Part part = req.getPart("txtDocument"). We can read 
 		 * bytes or arrays of bytes by calling read() on the InputStream of the Part object. In this
 		 * case, we are only interested in text files, so it's as easy to buffer the bytes as characters
-		 * to enable the servlet to read the uploaded file line-by-line. Note that the uplaod action
+		 * to enable the servlet to read the uploaded file line-by-line. Note that the upload action
 		 * can be easily completed by writing the file to disk if necessary. The following lines just
 		 * read the document from memory... this might not be a good idea if the file size is large!
 		 */
 		out.print("<h3>Uploaded Document</h3>");	
 		out.print("<font color=\"0000ff\">");
-		
-		BufferedReader br = new BufferedReader(new InputStreamReader(part.getInputStream()));
-		String line = null;
-		while ((line = br.readLine()) != null) {
-			//Break each line up into shingles and do something. The servlet really should act as a
-			//contoller and dispatch this task to something else... Divide and conquer...! I've been
-			//telling you all this since 2nd year...!
-			out.print(line);
-			String[] words = line.split("");// use regex
-			for (int i =0; i< SHINGLE_SIZE; i++){
-				buffer.add(words[i]);
+		ShingleParser sp = new ShingleParser(SHINGLE_SIZE, docID);
+		try {
+			BlockingQueue<Shingle> bq = (BlockingQueue<Shingle>) sp.parse(part.getInputStream());
+			for (Shingle shingle : bq) {
+				System.out.println(bq.poll());
 			}
-			Shingle s = getNextShingle(docID);
-			try {
-				bq.put(s);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
+		
 		out.print("</font>");	
 	}
 
-	private Shingle getNextShingle(String docID){
-		int counter = 0;
 
-		StringBuilder sb = new StringBuilder();
-
-		while (counter < SHINGLE_SIZE){
-			if (buffer.peek() != null){
-				sb.append(buffer.poll());
-			}
-			counter++;
-		}
-
-		return new Shingle(docID, sb.toString().hashCode());
-	}
 
 	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		doGet(req, resp);
