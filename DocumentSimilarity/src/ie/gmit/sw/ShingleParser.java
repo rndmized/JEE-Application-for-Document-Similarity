@@ -26,9 +26,9 @@ public class ShingleParser implements Parser {
 		BufferedReader br = new BufferedReader(new InputStreamReader(file));
 		String line = null;
 		while ((line = br.readLine()) != null) {
-			System.out.println(line);
+			//System.out.println(line);
 			String[] words = line.split("[\\s@&.,;:?$+-]+");// use regex
-			System.out.println(words.length);
+			//System.out.println(words.length);
 			for (int i = 0; i < SHINGLE_SIZE; i++) {
 				if ((words.length - i) > 0) {
 					buffer.add(words[i]);

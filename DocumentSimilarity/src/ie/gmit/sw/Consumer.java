@@ -22,7 +22,7 @@ public class Consumer implements Runnable {
 	public Consumer(String docID, BlockingQueue<Shingle> queue) {
 		this.queue = queue;
 		this.docID = docID;
-		init();
+		this.init();
 
 	}
 
@@ -30,13 +30,13 @@ public class Consumer implements Runnable {
 
 		pool = Executors.newFixedThreadPool(50);
 
-		for (int i = 0; i < minhashes.length; i++) {
+		for (int i = 0; i < MINHASH_NUMBER; i++) {
 			minhashes[i] = new Random().nextInt();
 		}
 
-		List<Integer> list = new ArrayList<>(minhashes.length);
-		for (int i = 0; i < list.size(); i++) {
-			list.set(i, Integer.MAX_VALUE);
+		List<Integer> list = new ArrayList<>(MINHASH_NUMBER);
+		for (int i = 0; i < MINHASH_NUMBER; i++) {
+			list.add(i, Integer.MAX_VALUE);
 
 		}
 		map.put(docID, list);
@@ -47,9 +47,10 @@ public class Consumer implements Runnable {
 		Shingle next;
 		try {
 			next = queue.take();
+			System.out.println(next.getDocId());
 			pool.execute(new Runnable() {
 				public void run() {
-					for (int i = 0; i < minhashes.length; i++) {
+					for (int i = 0; i < MINHASH_NUMBER; i++) {
 						int value = next.getHashcode() ^ minhashes[i]; // XOR THE VALUE WITH MIN HASH
 						List<Integer> hashes = map.get(next.getDocId());
 						if (value < hashes.get(i)) {
@@ -57,7 +58,6 @@ public class Consumer implements Runnable {
 						}
 					}
 				}
-
 			});
 			pool.awaitTermination(Long.MAX_VALUE, TimeUnit.HOURS);
 		} catch (InterruptedException e) {

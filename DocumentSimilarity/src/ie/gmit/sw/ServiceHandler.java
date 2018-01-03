@@ -1,13 +1,10 @@
 package ie.gmit.sw;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.util.Deque;
-import java.util.LinkedList;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
@@ -35,7 +32,9 @@ public class ServiceHandler extends HttpServlet {
 	 */
 	private String environmentalVariable = null; //Demo purposes only. Rename this variable to something more appropriate
 	private int SHINGLE_SIZE = 0;
+	private final int THREAD_POOL_SIZE = 5;
 	private static long jobNumber = 0;
+	private volatile ExecutorService ex;
 	
 	
 	
@@ -53,6 +52,7 @@ public class ServiceHandler extends HttpServlet {
 		//defined in the web.xml can be read in as follows:
 		environmentalVariable = ctx.getInitParameter("SOME_GLOBAL_OR_ENVIRONMENTAL_VARIABLE"); 
 		SHINGLE_SIZE = Integer.parseInt(ctx.getInitParameter("SHINGLE_SIZE"));
+		ex = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 	}
 
 
@@ -150,9 +150,8 @@ public class ServiceHandler extends HttpServlet {
 		ShingleParser sp = new ShingleParser(SHINGLE_SIZE, docID);
 		try {
 			BlockingQueue<Shingle> bq = (BlockingQueue<Shingle>) sp.parse(part.getInputStream());
-			for (Shingle shingle : bq) {
-				System.out.println(bq.poll());
-			}
+			Consumer co = new Consumer(docID, bq);
+			ex.execute(co);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
