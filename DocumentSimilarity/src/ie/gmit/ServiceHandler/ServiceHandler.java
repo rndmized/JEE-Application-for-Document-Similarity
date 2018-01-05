@@ -1,7 +1,8 @@
-package ie.gmit.sw;
+package ie.gmit.ServiceHandler;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Collection;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -15,6 +16,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
+
+import ie.gmit.sw.Consumer;
+import ie.gmit.sw.ObjectStorage;
+import ie.gmit.sw.ObjectStorageImplementation;
+import ie.gmit.sw.Shingle;
+import ie.gmit.sw.ShingleParser;
 
 /* NB: You will need to add the JAR file $TOMCAT_HOME/lib/servlet-api.jar to your CLASSPATH 
  *     variable in order to compile a servlet from a command line.
@@ -32,7 +39,7 @@ public class ServiceHandler extends HttpServlet {
 	 */
 	private String environmentalVariable = null; //Demo purposes only. Rename this variable to something more appropriate
 	private int SHINGLE_SIZE = 0;
-	private final int THREAD_POOL_SIZE = 5;
+	private final int THREAD_POOL_SIZE = 50;
 	private static long jobNumber = 0;
 	private volatile ExecutorService ex;
 	
@@ -66,6 +73,9 @@ public class ServiceHandler extends HttpServlet {
 	 *      vice-versa.
 	 */
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		ObjectStorage db = new ObjectStorageImplementation();
+		System.out.println(db.loadDocumentList().toString());
+		
 		//Step 1) Write out the MIME type
 		resp.setContentType("text/html"); 
 		
@@ -148,9 +158,10 @@ public class ServiceHandler extends HttpServlet {
 		out.print("<h3>Uploaded Document</h3>");	
 		out.print("<font color=\"0000ff\">");
 		ShingleParser sp = new ShingleParser(SHINGLE_SIZE, docID);
+		System.out.println("Hello");
 		try {
-			BlockingQueue<Shingle> bq = (BlockingQueue<Shingle>) sp.parse(part.getInputStream());
-			Consumer co = new Consumer(docID, bq);
+			@SuppressWarnings("unchecked")
+			Consumer co = new Consumer(docID, (BlockingQueue<Shingle>) sp.parse(part.getInputStream()));
 			ex.execute(co);
 		} catch (Exception e) {
 			e.printStackTrace();

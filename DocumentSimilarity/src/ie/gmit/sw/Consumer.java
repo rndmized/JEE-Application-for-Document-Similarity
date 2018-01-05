@@ -1,9 +1,11 @@
 package ie.gmit.sw;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -40,14 +42,12 @@ public class Consumer implements Runnable {
 
 		}
 		map.put(docID, list);
-
 	}
 
 	public void run() {
 		Shingle next;
 		try {
 			next = queue.take();
-			System.out.println(next.getDocId());
 			pool.execute(new Runnable() {
 				public void run() {
 					for (int i = 0; i < MINHASH_NUMBER; i++) {
@@ -59,11 +59,27 @@ public class Consumer implements Runnable {
 					}
 				}
 			});
+			Document doc = new Document(docID);
+			doc.setMinHashes(map.get(docID));
 			pool.awaitTermination(Long.MAX_VALUE, TimeUnit.HOURS);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		} // Blocking queue - throws exception
-
-		// double result = computeJaccard();
 	}
+	
+	private double computeJaccard(final List<Integer> m1, final List<Integer> m2) {
+		if (m1.equals(m2)) {
+            return 1.0;
+		}
+		
+		Set<Integer> union = new HashSet<Integer>();
+		union.addAll(m1);
+		union.addAll(m2);
+		
+		int intersection = m1.size() + m2.size()
+				- union.size();
+		
+		 return 1.0 * intersection / union.size();
+	}
+
 }

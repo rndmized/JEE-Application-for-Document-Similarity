@@ -10,9 +10,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class ShingleParser implements Parser {
 
+	private int SHINGLE_SIZE;
+	
 	private Deque<String> buffer = new LinkedList<>();
 	private BlockingQueue<Shingle> bq = new LinkedBlockingQueue<>();
-	private int SHINGLE_SIZE;
 	private String docID;
 
 	public ShingleParser(int SHINGLE_SIZE, String docID) {
@@ -35,17 +36,11 @@ public class ShingleParser implements Parser {
 				}
 			}
 			Shingle s = getNextShingle(docID);
-			try {
-				bq.put(s);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			bq.put(s);
 		}
 		return bq;
 
 	}
-
-
 
 	private Shingle getNextShingle(String docID) {
 		int counter = 0;

@@ -1,4 +1,4 @@
-package ie.gmit.sw;
+package ie.gmit.ServiceHandler;
 
 import java.io.*;
 import javax.servlet.*;
