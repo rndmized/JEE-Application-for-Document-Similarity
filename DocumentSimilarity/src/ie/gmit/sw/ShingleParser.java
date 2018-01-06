@@ -39,7 +39,7 @@ public class ShingleParser implements Parser<Shingle> {
 			Shingle s = getNextShingle(docID);
 			s1.add(s);
 		}
-		System.out.println(s1.size());
+		//System.out.println(s1.size());
 		return s1;
 	}
 

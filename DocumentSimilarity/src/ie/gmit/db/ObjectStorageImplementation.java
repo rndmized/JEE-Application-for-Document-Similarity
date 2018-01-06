@@ -9,9 +9,6 @@ import com.db4o.Db4oEmbedded;
 import com.db4o.ObjectContainer;
 import com.db4o.ObjectSet;
 import com.db4o.config.EmbeddedConfiguration;
-import com.db4o.ext.DatabaseClosedException;
-import com.db4o.ext.DatabaseReadOnlyException;
-import com.db4o.ext.Db4oIOException;
 import com.db4o.query.Predicate;
 import com.db4o.ta.TransparentActivationSupport;
 import com.db4o.ta.TransparentPersistenceSupport;
@@ -45,25 +42,9 @@ public class ObjectStorageImplementation implements ObjectStorage {
 	 */
 	@Override
 	public boolean addDocument(Document doc) {
-		
+		this.deleteDocument(doc);
 		db.store(doc);
-		try {
-			db.commit();
-		} catch (Db4oIOException e) {
-			e.printStackTrace();
-			db.close();
-			return false;
-		} catch (DatabaseClosedException e) {
-			e.printStackTrace();
-			db.close();
-			return false;
-		} catch (DatabaseReadOnlyException e) {
-			e.printStackTrace();
-			db.close();
-			return false;
-		} 
 		db.commit();
-
 		return true;
 	}
 	
@@ -78,7 +59,6 @@ public class ObjectStorageImplementation implements ObjectStorage {
 		for (Document document : documents) {
 			docs.add(document);
 		}
-		db.commit();
 		return docs;
 	}
 	
@@ -97,12 +77,12 @@ public class ObjectStorageImplementation implements ObjectStorage {
 		});
 		
 		if (result.hasNext()) {
-			out.println("[getDocument] found " + d.getDocID());
-			out.println("Removing [" + d.getDocID() +"] from database.");
+			//out.println("[getDocument] found " + d.getDocID());
+			//out.println("Removing [" + d.getDocID() +"] from database.");
 			db.delete(result.next());
 			
 		} else {
-			out.println("[Error] " + d.getDocID() + " is not in the database");
+			//out.println("[Error] " + d.getDocID() + " is not in the database");
 		}
 		db.commit();
 	}

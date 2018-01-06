@@ -19,10 +19,10 @@ public class JaccardComputation {
 		int intersection = m1.size() + m2.size()
 				- union.size();
 		//**********************  TESTING   ********************************//
-		System.out.println("union: " + union.size());
-		System.out.println("m1: " + m1.size());
-		System.out.println("m2: " + m2.size());
-		System.out.println("Intersection: " + intersection);
+//		System.out.println("union: " + union.size());
+//		System.out.println("m1: " + m1.size());
+//		System.out.println("m2: " + m2.size());
+//		System.out.println("Intersection: " + intersection);
 		
 		 return (1.0 * intersection / union.size())*100;
 	}

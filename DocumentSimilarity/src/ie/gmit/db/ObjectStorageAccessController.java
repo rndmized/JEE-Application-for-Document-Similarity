@@ -33,6 +33,7 @@ public class ObjectStorageAccessController implements Runnable {
 					keepRunning = false;
 				} else if (req instanceof AdditionRequest){
 					db.addDocument(((AdditionRequest) req).getDocument());
+					dbDocs = db.loadDocumentList();
 				} else {
 					dbDocs = db.loadDocumentList();
 				}
