@@ -1,12 +1,15 @@
 package ie.gmit.sw;
 
-import java.util.List;
+import java.util.TreeSet;
 
 public class Document {
 	
 	private String docID;
-	private List<Integer> minHashes;
+	private TreeSet<Shingle> shingles;
 	
+	public Document() {
+		super();
+	}
 	
 	public Document(String docID) {
 		super();
@@ -23,14 +26,12 @@ public class Document {
 		this.docID = docID;
 	}
 
-
-	public List<Integer> getMinHashes() {
-		return minHashes;
+	public TreeSet<Shingle> getShingles() {
+		return shingles;
 	}
 
-
-	public void setMinHashes(List<Integer> minHashes) {
-		this.minHashes = minHashes;
+	public void setShingles(TreeSet<Shingle> shingles) {
+		this.shingles = shingles;
 	}
 	
 }

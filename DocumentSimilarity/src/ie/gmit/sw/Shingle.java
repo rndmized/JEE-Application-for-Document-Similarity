@@ -1,6 +1,6 @@
 package ie.gmit.sw;
 
-public class Shingle {
+public class Shingle implements Comparable<Shingle> {
 
 	private int hashcode;
 	private String docId;
@@ -29,6 +29,17 @@ public class Shingle {
 
 	public void setDocId(String docId) {
 		this.docId = docId;
+	}
+
+	@Override
+	public int compareTo(Shingle o) {
+		if (this.hashcode > o.getHashcode()) {
+			return 1;
+		} else if (this.hashcode < o.getHashcode()) {
+			return -1;
+		} else {
+			return 0;
+		}
 	}
 
 }

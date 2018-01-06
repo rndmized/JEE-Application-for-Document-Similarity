@@ -28,7 +28,7 @@
   <!-- A servlet class must be bound to a name -->
   <servlet>
     <servlet-name>service-request-handler</servlet-name>
-    <servlet-class>ie.gmit.sw.ServiceHandler</servlet-class>
+    <servlet-class>ie.gmit.ServiceHandler.ServiceHandler</servlet-class>
     <load-on-startup>0</load-on-startup>
   </servlet>
   
@@ -40,7 +40,7 @@
 
   <servlet>
     <servlet-name>service-poll-handler</servlet-name>
-    <servlet-class>ie.gmit.sw.ServicePollHandler</servlet-class>
+    <servlet-class>ie.gmit.ServiceHandler.ServicePollHandler</servlet-class>
     <load-on-startup>0</load-on-startup>
   </servlet>
   

@@ -1,9 +1,10 @@
 package ie.gmit.sw;
 
 import java.io.InputStream;
+import java.util.Collection;
 
-public interface Parser {
-	
-	public Object parse(InputStream file) throws Exception;
+public interface Parser<T> {
+
+	public Collection<T> parse(InputStream f, String docID) throws Exception;
 
 }

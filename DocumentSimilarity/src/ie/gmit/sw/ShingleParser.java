@@ -3,43 +3,44 @@ package ie.gmit.sw;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Collection;
 import java.util.Deque;
 import java.util.LinkedList;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.Set;
+import java.util.TreeSet;
 
-public class ShingleParser implements Parser {
+public class ShingleParser implements Parser<Shingle> {
 
 	private int SHINGLE_SIZE;
 	
 	private Deque<String> buffer = new LinkedList<>();
-	private BlockingQueue<Shingle> bq = new LinkedBlockingQueue<>();
-	private String docID;
+	
+	//**********************  TESTING   ********************************//
+	private Set<Shingle> s1 = new TreeSet<>();
+	//******************************************************************//
 
-	public ShingleParser(int SHINGLE_SIZE, String docID) {
+	public ShingleParser(int SHINGLE_SIZE) {
 		super();
 		this.SHINGLE_SIZE = SHINGLE_SIZE;
-		this.docID = docID;
 	}
 	
 	@Override
-	public Object parse(InputStream file) throws Exception {
-		BufferedReader br = new BufferedReader(new InputStreamReader(file));
+	public Collection<Shingle> parse(InputStream part, String docID) throws Exception {
+		BufferedReader br = new BufferedReader(new InputStreamReader(part));
+		s1 = new TreeSet<>();
 		String line = null;
 		while ((line = br.readLine()) != null) {
-			//System.out.println(line);
 			String[] words = line.split("[\\s@&.,;:?$+-]+");// use regex
-			//System.out.println(words.length);
 			for (int i = 0; i < SHINGLE_SIZE; i++) {
 				if ((words.length - i) > 0) {
 					buffer.add(words[i]);
 				}
 			}
 			Shingle s = getNextShingle(docID);
-			bq.put(s);
+			s1.add(s);
 		}
-		return bq;
-
+		System.out.println(s1.size());
+		return s1;
 	}
 
 	private Shingle getNextShingle(String docID) {

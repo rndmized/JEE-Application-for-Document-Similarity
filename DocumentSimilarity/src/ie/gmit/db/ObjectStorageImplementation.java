@@ -1,4 +1,4 @@
-package ie.gmit.sw;
+package ie.gmit.db;
 
 import static java.lang.System.out;
 
@@ -16,16 +16,18 @@ import com.db4o.query.Predicate;
 import com.db4o.ta.TransparentActivationSupport;
 import com.db4o.ta.TransparentPersistenceSupport;
 
+import ie.gmit.sw.Document;
 import xtea_db4o.XTEA;
 import xtea_db4o.XTeaEncryptionStorage;
 
 public class ObjectStorageImplementation implements ObjectStorage {
 	
 	private ObjectContainer db = null;
+	private EmbeddedConfiguration config;
 	
-	public ObjectStorageImplementation() {
+	public ObjectStorageImplementation(String dbName) {
 		
-		EmbeddedConfiguration config = Db4oEmbedded.newConfiguration();
+		config = Db4oEmbedded.newConfiguration();
 		config.common().add(new TransparentActivationSupport()); //Real lazy. Saves all the config commented out below
 		config.common().add(new TransparentPersistenceSupport()); //Lazier still. Saves all the config commented out below
 		config.common().updateDepth(7); //Propagate updates
@@ -34,8 +36,7 @@ public class ObjectStorageImplementation implements ObjectStorage {
 		config.file().storage(new XTeaEncryptionStorage("password", XTEA.ITERATIONS64));
 		
 		//Open a local database. Use Db4o.openServer(config, server, port) for full client / server
-		db = Db4oEmbedded.openFile(config, "documents.data");
-		
+		db = Db4oEmbedded.openFile(config, dbName + ".data");
 	}
 	
 
@@ -44,20 +45,25 @@ public class ObjectStorageImplementation implements ObjectStorage {
 	 */
 	@Override
 	public boolean addDocument(Document doc) {
+		
 		db.store(doc);
 		try {
 			db.commit();
 		} catch (Db4oIOException e) {
 			e.printStackTrace();
+			db.close();
 			return false;
 		} catch (DatabaseClosedException e) {
 			e.printStackTrace();
+			db.close();
 			return false;
 		} catch (DatabaseReadOnlyException e) {
 			e.printStackTrace();
+			db.close();
 			return false;
-		}
-		db.close();
+		} 
+		db.commit();
+
 		return true;
 	}
 	
@@ -72,6 +78,7 @@ public class ObjectStorageImplementation implements ObjectStorage {
 		for (Document document : documents) {
 			docs.add(document);
 		}
+		db.commit();
 		return docs;
 	}
 	
@@ -93,10 +100,15 @@ public class ObjectStorageImplementation implements ObjectStorage {
 			out.println("[getDocument] found " + d.getDocID());
 			out.println("Removing [" + d.getDocID() +"] from database.");
 			db.delete(result.next());
-			db.commit();
+			
 		} else {
 			out.println("[Error] " + d.getDocID() + " is not in the database");
 		}
+		db.commit();
+	}
+	
+	public void close(){
+		db.close();
 	}
 
 }
