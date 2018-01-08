@@ -1,7 +1,5 @@
 package ie.gmit.db;
 
-import static java.lang.System.out;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,12 +14,22 @@ import com.db4o.ta.TransparentPersistenceSupport;
 import ie.gmit.sw.Document;
 import xtea_db4o.XTEA;
 import xtea_db4o.XTeaEncryptionStorage;
-
+/**
+ * Implementation of ObjectStorage Interface.
+ * Contains methods to access Object Database.
+ * 
+ * @author RnDMizeD
+ * @version 1.0a
+ */
 public class ObjectStorageImplementation implements ObjectStorage {
 	
 	private ObjectContainer db = null;
 	private EmbeddedConfiguration config;
 	
+	/**
+	 * Takes String name and instantiates Object Storage for Object Database access for the named database.
+	 * @param String dbName
+	 */
 	public ObjectStorageImplementation(String dbName) {
 		
 		config = Db4oEmbedded.newConfiguration();
@@ -37,58 +45,48 @@ public class ObjectStorageImplementation implements ObjectStorage {
 	}
 	
 
-	/* (non-Javadoc)
-	 * @see ie.gmit.sw.ObjectStorage#addDocument(ie.gmit.sw.Document)
-	 */
 	@Override
-	public boolean addDocument(Document doc) {
-		this.deleteDocument(doc);
-		db.store(doc);
+	public void addDocument(Document document) {
+		// Look whether the document is already in the database, if so delete
+		this.deleteDocument(document);
+		// Add document to database;
+		db.store(document);
+		// Commit
 		db.commit();
-		return true;
 	}
 	
 
-	/* (non-Javadoc)
-	 * @see ie.gmit.sw.ObjectStorage#loadDocumentList()
-	 */
 	@Override
 	public List<Document> loadDocumentList() {
 		List<Document> docs = new ArrayList<>();
+		//Query database for Document objects
 		ObjectSet<Document> documents = db.query(Document.class);
+		// Add documents to list
 		for (Document document : documents) {
 			docs.add(document);
 		}
+		// return list
 		return docs;
 	}
 	
 
-	/* (non-Javadoc)
-	 * @see ie.gmit.sw.ObjectStorage#deleteDocument(ie.gmit.sw.Document)
-	 */
 	@Override
-	public void deleteDocument(final Document d){
+	public void deleteDocument(final Document document){
+		// Query database for documents with the same id
 		ObjectSet<Document> result = db.query(new Predicate<Document>() {
 			private static final long serialVersionUID = 777L;
 
-			public boolean match(Document document) {
-		        return document.getDocID().equals(d.getDocID());
+			public boolean match(Document doc) {
+		        return doc.getDocID().equals(document.getDocID());
 		    }	
 		});
-		
+		// If there is a match delete document.
 		if (result.hasNext()) {
-			//out.println("[getDocument] found " + d.getDocID());
-			//out.println("Removing [" + d.getDocID() +"] from database.");
-			db.delete(result.next());
-			
-		} else {
-			//out.println("[Error] " + d.getDocID() + " is not in the database");
+			db.delete(result.next());	
 		}
+		// Commit changes
 		db.commit();
 	}
 	
-	public void close(){
-		db.close();
-	}
 
 }
