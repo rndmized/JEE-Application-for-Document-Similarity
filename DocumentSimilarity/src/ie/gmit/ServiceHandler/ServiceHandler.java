@@ -30,6 +30,11 @@ import ie.gmit.sw.Shingle;
 import ie.gmit.sw.ShingleParser;
 import ie.gmit.sw.Similarity;
 
+/*
+ * NOTE FROM STUDENT: This template has been barely modified.
+ * 
+ */
+
 
 /* NB: You will need to add the JAR file $TOMCAT_HOME/lib/servlet-api.jar to your CLASSPATH 
  *     variable in order to compile a servlet from a command line.
@@ -48,12 +53,9 @@ public class ServiceHandler extends HttpServlet {
 	 * object 1) A Proxy: Declare a shared proxy here and a request proxy inside
 	 * doGet()
 	 */
-	private String environmentalVariable = null; // Demo purposes only. Rename this variable to something more
-													// appropriate
 	private int SHINGLE_SIZE = 0;
 	private final int THREAD_POOL_SIZE = 50;
 	private static long jobNumber = 0;
-	private volatile boolean jobCompleted = false;
 	private volatile ExecutorService ex;
 
 	private volatile BlockingQueue<Job> inQueue;
@@ -74,7 +76,6 @@ public class ServiceHandler extends HttpServlet {
 		// Reads the value from the <context-param> in web.xml. Any application scope
 		// variables
 		// defined in the web.xml can be read in as follows:
-		environmentalVariable = ctx.getInitParameter("SOME_GLOBAL_OR_ENVIRONMENTAL_VARIABLE");
 		SHINGLE_SIZE = Integer.parseInt(ctx.getInitParameter("SHINGLE_SIZE"));
 		ex = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 
@@ -108,9 +109,10 @@ public class ServiceHandler extends HttpServlet {
 		String title = req.getParameter("txtTitle");
 		String taskNumber = req.getParameter("frmTaskNumber");
 		Part part = req.getPart("txtDocument");
-		
+		// Create Shingle Parser and new Document
 		ShingleParser sp = new ShingleParser(SHINGLE_SIZE);
 		Document doc = new Document(title);
+		//Parse document
 		try {
 			doc.setShingles((TreeSet<Shingle>) sp.parse(part.getInputStream(), title));
 		} catch (Exception e1) {
@@ -136,6 +138,7 @@ public class ServiceHandler extends HttpServlet {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+			//Run worker
 			Runnable docComp = new DocumentComparer(inQueue, outQueue, dbc);
 			ex.execute(docComp);
 			
@@ -154,7 +157,6 @@ public class ServiceHandler extends HttpServlet {
 		//Output some useful information for you (yes YOU!)
 		out.print("<div id=\"r\"></div>");
 		out.print("<font color=\"#993333\"><b>");
-		out.print("Environmental Variable Read from web.xml: " + environmentalVariable);
 		out.print("<br>This servlet should only be responsible for handling client request and returning responses. Everything else should be handled by different objects.");
 		out.print("Note that any variables declared inside this doGet() method are thread safe. Anything defined at a class level is shared between HTTP requests.");				
 		out.print("</b></font>");
@@ -181,22 +183,9 @@ public class ServiceHandler extends HttpServlet {
 		
 		//JavaScript to periodically poll the server for updates (this is ideal for an asynchronous operation)
 		out.print("<script>");
-		out.print("var wait=setTimeout(\"document.frmRequestDetails.submit();\", 10000);"); //Refresh every 10 seconds
+		out.print("var wait=setTimeout(\"document.frmRequestDetails.submit();\", 5000);"); //Refresh every 5 seconds
 		out.print("</script>");
-		
-		
-			
-		/* File Upload: The following few lines read the multipart/form-data from an instance of the
-		 * interface Part that is accessed by Part part = req.getPart("txtDocument"). We can read 
-		 * bytes or arrays of bytes by calling read() on the InputStream of the Part object. In this
-		 * case, we are only interested in text files, so it's as easy to buffer the bytes as characters
-		 * to enable the servlet to read the uploaded file line-by-line. Note that the uplaod action
-		 * can be easily completed by writing the file to disk if necessary. The following lines just
-		 * read the document from memory... this might not be a good idea if the file size is large!
-		 */
-		out.print("<h3>Uploaded Document</h3>");	
 		out.print("<font color=\"0000ff\">");	
-		
 		out.print("</font>");	
 	}
 

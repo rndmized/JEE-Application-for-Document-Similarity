@@ -7,37 +7,45 @@ import java.util.Random;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
-
+/**
+ * Operations to calculate MinHash
+ * 
+ * @author RnDMizeD
+ * @version 1.0b
+ */
 public class MinHash {
 
 	private final int MINHASH_NUMBER = 200;
 	private int[] minhashes = new int[MINHASH_NUMBER];
-	private Map<String, List<Integer>> map = new ConcurrentHashMap<>();
 
+	
+	/**
+	 * Constructor
+	 */
 	public MinHash() {
 		init();
 	}
-
+	
+	/**
+	 * Initializer
+	 */
 	private void init() {
 		for (int i = 0; i < MINHASH_NUMBER; i++) {
 			minhashes[i] = new Random().nextInt();
 		}
 	}
-
-	public List<Integer> getMaxIntList() {
-
-		List<Integer> list = new ArrayList<>(MINHASH_NUMBER);
-		for (int i = 0; i < MINHASH_NUMBER; i++) {
-			list.add(i, Integer.MAX_VALUE);
-
-		}
-		return list;
-	}
-
+	
+	/**
+	 * Returns a List of Integers minhashed, result of the hashcode of a Document Shingles  XORed 
+	 * with random numbers to take the MINHASH_NUMBER amount of the lowest Integers of such document.
+	 * 
+	 * @param Document doc
+	 * @return List of Integers
+	 * @throws InterruptedException
+	 */
 	public List<Integer> getMinHashedDocument(Document doc) throws InterruptedException {
 		Document document = doc;
 		BlockingQueue<Shingle> queue = new LinkedBlockingQueue<>(document.getShingles());
-		map.put(document.getDocID(), getMaxIntList());
 		List<Integer> minHashList = new ArrayList<>();
 		for (Integer hash : minhashes) {
 			int min = Integer.MAX_VALUE;
