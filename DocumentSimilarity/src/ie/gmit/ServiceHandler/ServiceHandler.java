@@ -30,11 +30,6 @@ import ie.gmit.sw.Shingle;
 import ie.gmit.sw.ShingleParser;
 import ie.gmit.sw.Similarity;
 
-/*
- * NOTE FROM STUDENT: This template has been barely modified.
- * 
- */
-
 
 /* NB: You will need to add the JAR file $TOMCAT_HOME/lib/servlet-api.jar to your CLASSPATH 
  *     variable in order to compile a servlet from a command line.
@@ -155,22 +150,11 @@ public class ServiceHandler extends HttpServlet {
 		
 		
 		//Output some useful information for you (yes YOU!)
-		out.print("<div id=\"r\"></div>");
+		out.print("<div id=\"r\" align=\"center\" ></div>");
 		out.print("<font color=\"#993333\"><b>");
-		out.print("<br>This servlet should only be responsible for handling client request and returning responses. Everything else should be handled by different objects.");
-		out.print("Note that any variables declared inside this doGet() method are thread safe. Anything defined at a class level is shared between HTTP requests.");				
+		out.print("<br>Processing request with ID: " + taskNumber + ". Please wait...");	
 		out.print("</b></font>");
 		
-		out.print("<h3>Compiling and Packaging this Application</h3>");
-		out.print("Place any servlets or Java classes in the WEB-INF/classes directory. Alternatively package "); 
-		out.print("these resources as a JAR archive in the WEB-INF/lib directory using by executing the ");  
-		out.print("following command from the WEB-INF/classes directory jar -cf my-library.jar *");
-		
-		out.print("<ol>");
-		out.print("<li><b>Compile on Mac/Linux:</b> javac -cp .:$TOMCAT_HOME/lib/servlet-api.jar WEB-INF/classes/ie/gmit/sw/*.java");
-		out.print("<li><b>Compile on Windows:</b> javac -cp .;%TOMCAT_HOME%/lib/servlet-api.jar WEB-INF/classes/ie/gmit/sw/*.java");
-		out.print("<li><b>Build JAR Archive:</b> jar -cf jaccard.war *");
-		out.print("</ol>");
 		
 		//We can also dynamically write out a form using hidden form fields. The form itself is not
 		//visible in the browser, but the JavaScript below can see it.
